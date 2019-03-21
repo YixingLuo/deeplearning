@@ -4,6 +4,7 @@ import numpy as np
 import foolbox
 import matplotlib.pyplot as plt
 
+"""
 keras.backend.set_learning_phase(0)
 kmodel = keras.applications.resnet50.ResNet50(weights='imagenet')
 preprocessing = (np.array([104, 116, 123]), 1)
@@ -12,5 +13,22 @@ model = foolbox.models.KerasModel(kmodel, bounds=(0, 255), preprocessing=preproc
 image, label = foolbox.utils.imagenet_example()
 # ::-1 reverses the color channels, because Keras ResNet50 expects BGR instead of RGB
 print(np.argmax(model.predictions(image[:, :, ::-1])), label)
+"""
+import foolbox
+import keras
+from keras.applications.resnet50 import ResNet50, preprocess_input
+
+# instantiate model
+keras.backend.set_learning_phase(0)
+kmodel = ResNet50(weights='imagenet')
+fmodel = foolbox.models.KerasModel(kmodel, bounds=(0, 255),preprocess_fn=preprocess_input)
+
+# get source image and label
+image, label = foolbox.utils.imagenet_example()
+
+# apply attack on source image
+attack  = foolbox.attacks.FGSM(fmodel)
+adversarial = attack(image, label)
+
 
 
